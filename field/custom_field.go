@@ -15,9 +15,11 @@ package field
 
 import (
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"reflect"
 	"time"
+
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CustomFields defines struct of supported custom fields
@@ -116,6 +118,14 @@ func setTime(doc interface{}, fieldName string, overWrite bool) {
 			} else if overWrite {
 				ca.SetInt(tt.Unix())
 			}
+		case uint64:
+			if ca.Interface().(uint64) == 0 {
+				t := (uint64)(tt.Unix())
+				ca.SetUint(t)
+			} else if overWrite {
+				t := (uint64)(tt.Unix())
+				ca.SetUint(t)
+			}
 		default:
 			fmt.Println("unsupported type to setTime", a)
 		}
@@ -138,7 +148,8 @@ func setId(doc interface{}, fieldName string) {
 			}
 		case string:
 			if ca.String() == "" {
-				ca.SetString(primitive.NewObjectID().Hex())
+				// ca.SetString(primitive.NewObjectID().Hex())
+				ca.SetString(uuid.NewString())
 			}
 		default:
 			fmt.Println("unsupported type to setId", a)
