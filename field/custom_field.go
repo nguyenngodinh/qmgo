@@ -103,8 +103,12 @@ func setTime(doc interface{}, fieldName string, overWrite bool) {
 	}
 	e := reflect.ValueOf(doc).Elem()
 	ca := e.FieldByName(fieldName)
+	fmt.Printf("Set time e:%v", e)
+	fmt.Printf("Set time ca:%v ---> can set %v", ca, ca.CanSet())
 	if ca.CanSet() {
 		tt := time.Now()
+		atype := ca.Interface()
+		fmt.Printf("ca type %v ", atype)
 		switch a := ca.Interface().(type) {
 		case time.Time:
 			if ca.Interface().(time.Time).IsZero() {
