@@ -15,8 +15,9 @@ package hook
 
 import (
 	"context"
-	"github.com/qiniu/qmgo/operator"
 	"reflect"
+
+	"github.com/nguyenngodinh/qmgo/operator"
 )
 
 // hookHandler defines the relations between hook type and handler

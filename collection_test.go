@@ -23,8 +23,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	officialOpts "go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/qiniu/qmgo/operator"
-	"github.com/qiniu/qmgo/options"
+	"github.com/nguyenngodinh/qmgo/operator"
+	"github.com/nguyenngodinh/qmgo/options"
 )
 
 func TestCollection_EnsureIndex(t *testing.T) {

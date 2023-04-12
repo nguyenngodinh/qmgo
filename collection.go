@@ -19,9 +19,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/qiniu/qmgo/middleware"
-	"github.com/qiniu/qmgo/operator"
-	opts "github.com/qiniu/qmgo/options"
+	"github.com/nguyenngodinh/qmgo/middleware"
+	"github.com/nguyenngodinh/qmgo/operator"
+	opts "github.com/nguyenngodinh/qmgo/options"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"

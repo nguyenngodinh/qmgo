@@ -15,11 +15,12 @@ package qmgo
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"testing"
 
-	opts "github.com/qiniu/qmgo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	opts "github.com/nguyenngodinh/qmgo/options"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 )

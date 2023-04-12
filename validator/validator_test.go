@@ -2,11 +2,12 @@ package validator
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-playground/validator/v10"
-	"github.com/qiniu/qmgo/operator"
+	"github.com/nguyenngodinh/qmgo/operator"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
-	"testing"
 )
 
 // User contains user information

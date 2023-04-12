@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/qiniu/qmgo/middleware"
-	"github.com/qiniu/qmgo/operator"
-	qOpts "github.com/qiniu/qmgo/options"
+	"github.com/nguyenngodinh/qmgo/middleware"
+	"github.com/nguyenngodinh/qmgo/operator"
+	qOpts "github.com/nguyenngodinh/qmgo/options"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -90,16 +90,16 @@ func (q *Query) Sort(fields ...string) QueryI {
 	return newQ
 }
 
-//  SetArrayFilter use for apply update array
-//  For Example :
-//  var res = QueryTestItem{}
-//  change := Change{
-//	Update:    bson.M{"$set": bson.M{"instock.$[elem].qty": 100}},
-//	ReturnNew: false,
-//  }
-//  cli.Find(context.Background(), bson.M{"name": "Lucas"}).
-//      SetArrayFilters(&options.ArrayFilters{Filters: []interface{}{bson.M{"elem.warehouse": bson.M{"$in": []string{"C", "F"}}},}}).
-//        Apply(change, &res)
+//	 SetArrayFilter use for apply update array
+//	 For Example :
+//	 var res = QueryTestItem{}
+//	 change := Change{
+//		Update:    bson.M{"$set": bson.M{"instock.$[elem].qty": 100}},
+//		ReturnNew: false,
+//	 }
+//	 cli.Find(context.Background(), bson.M{"name": "Lucas"}).
+//	     SetArrayFilters(&options.ArrayFilters{Filters: []interface{}{bson.M{"elem.warehouse": bson.M{"$in": []string{"C", "F"}}},}}).
+//	       Apply(change, &res)
 func (q *Query) SetArrayFilters(filter *options.ArrayFilters) QueryI {
 	newQ := q
 	newQ.arrayFilters = filter

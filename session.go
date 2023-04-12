@@ -16,7 +16,7 @@ package qmgo
 import (
 	"context"
 
-	opts "github.com/qiniu/qmgo/options"
+	opts "github.com/nguyenngodinh/qmgo/options"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/mongo/driver"
@@ -28,17 +28,17 @@ type Session struct {
 }
 
 // StartTransaction starts transaction
-//precondition：
-//- version of mongoDB server >= v4.0
-//- Topology of mongoDB server is not Single
-//At the same time, please pay attention to the following
-//- make sure all operations in callback use the sessCtx as context parameter
-//- Dont forget to call EndSession if session is not used anymore
-//- if operations in callback takes more than(include equal) 120s, the operations will not take effect,
-//- if operation in callback return qmgo.ErrTransactionRetry,
-//  the whole transaction will retry, so this transaction must be idempotent
-//- if operations in callback return qmgo.ErrTransactionNotSupported,
-//- If the ctx parameter already has a Session attached to it, it will be replaced by this session.
+// precondition：
+// - version of mongoDB server >= v4.0
+// - Topology of mongoDB server is not Single
+// At the same time, please pay attention to the following
+//   - make sure all operations in callback use the sessCtx as context parameter
+//   - Dont forget to call EndSession if session is not used anymore
+//   - if operations in callback takes more than(include equal) 120s, the operations will not take effect,
+//   - if operation in callback return qmgo.ErrTransactionRetry,
+//     the whole transaction will retry, so this transaction must be idempotent
+//   - if operations in callback return qmgo.ErrTransactionNotSupported,
+//   - If the ctx parameter already has a Session attached to it, it will be replaced by this session.
 func (s *Session) StartTransaction(ctx context.Context, cb func(sessCtx context.Context) (interface{}, error), opts ...*opts.TransactionOptions) (interface{}, error) {
 	transactionOpts := options.Transaction()
 	if len(opts) > 0 && opts[0].TransactionOptions != nil {

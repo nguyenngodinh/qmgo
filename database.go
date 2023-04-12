@@ -16,7 +16,7 @@ package qmgo
 import (
 	"context"
 
-	opts "github.com/qiniu/qmgo/options"
+	opts "github.com/nguyenngodinh/qmgo/options"
 	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -72,11 +72,11 @@ func (d *Database) RunCommand(ctx context.Context, runCommand interface{}, opts 
 // The opts parameter can be used to specify options for the operation (see the options.CreateCollectionOptions
 // documentation).
 func (db *Database) CreateCollection(ctx context.Context, name string, opts ...opts.CreateCollectionOptions) error {
-	var option  = make([]*options.CreateCollectionOptions,0,len(opts))
-	for _,opt := range opts{
-		if opt.CreateCollectionOptions != nil{
-			option = append(option,opt.CreateCollectionOptions)
+	var option = make([]*options.CreateCollectionOptions, 0, len(opts))
+	for _, opt := range opts {
+		if opt.CreateCollectionOptions != nil {
+			option = append(option, opt.CreateCollectionOptions)
 		}
 	}
-	return db.database.CreateCollection(ctx,name,option...)
+	return db.database.CreateCollection(ctx, name, option...)
 }
