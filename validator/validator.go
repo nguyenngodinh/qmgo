@@ -20,7 +20,7 @@ func SetValidate(v *validator.Validate) {
 // validatorNeeded checks if the validator is needed to opType
 func validatorNeeded(opType operator.OpType) bool {
 	switch opType {
-	case operator.BeforeInsert, operator.BeforeUpsert, operator.BeforeReplace:
+	case operator.BeforeInsert, operator.BeforeUpsert, operator.BeforeReplace, operator.BeforeUpdate:
 		return true
 	}
 	return false
