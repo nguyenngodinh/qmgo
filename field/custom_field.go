@@ -80,7 +80,7 @@ func (c CustomFields) CustomUpdateTime(doc interface{}) {
 		return
 	}
 	fieldName := c.updateAt
-	setTime(doc, fieldName, true)
+	setUpdatedTime(doc, fieldName)
 	return
 }
 
@@ -92,6 +92,35 @@ func (c CustomFields) CustomId(doc interface{}) {
 	fieldName := c.id
 	setId(doc, fieldName)
 	return
+}
+
+// setTime changes the custom time fields
+// The overWrite defines if change value when the filed has valid value
+func setUpdatedTime(doc interface{}, fieldName string) {
+	if reflect.Ptr != reflect.TypeOf(doc).Kind() {
+		fmt.Println("not a point type")
+		return
+	}
+	e := reflect.ValueOf(doc).Elem()
+	ca := e.FieldByName(fieldName)
+	fmt.Printf("Set time e:%v", e)
+	fmt.Printf("Set time ca:%v ---> can set %v", ca, ca.CanSet())
+	if ca.CanSet() {
+		tt := time.Now()
+		atype := ca.Interface()
+		fmt.Printf("ca type %v ", atype)
+		switch a := ca.Interface().(type) {
+		case time.Time:
+			ca.Set(reflect.ValueOf(tt))
+		case int64:
+			ca.SetInt(tt.Unix())
+		case uint64:
+			t := (uint64)(tt.Unix())
+			ca.SetUint(t)
+		default:
+			fmt.Println("unsupported type to setTime", a)
+		}
+	}
 }
 
 // setTime changes the custom time fields
