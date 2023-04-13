@@ -111,12 +111,12 @@ func setUpdatedTime(doc interface{}, fieldName string) {
 		fmt.Printf("ca type %v ", atype)
 		switch a := ca.Interface().(type) {
 		case time.Time:
-			ca.Set(reflect.ValueOf(tt))
+			ca.Set(reflect.ValueOf(tt.UnixMilli()))
 		case int64:
-			ca.SetInt(tt.Unix())
+			ca.SetInt(tt.Unix() * 1000)
 		case uint64:
 			t := (uint64)(tt.Unix())
-			ca.SetUint(t)
+			ca.SetUint(t * 1000)
 		default:
 			fmt.Println("unsupported type to setTime", a)
 		}
@@ -141,22 +141,22 @@ func setTime(doc interface{}, fieldName string, overWrite bool) {
 		switch a := ca.Interface().(type) {
 		case time.Time:
 			if ca.Interface().(time.Time).IsZero() {
-				ca.Set(reflect.ValueOf(tt))
+				ca.Set(reflect.ValueOf(tt.UnixMilli()))
 			} else if overWrite {
 				ca.Set(reflect.ValueOf(tt))
 			}
 		case int64:
 			if ca.Interface().(int64) == 0 {
-				ca.SetInt(tt.Unix())
+				ca.SetInt(tt.Unix() * 1000)
 			} else if overWrite {
-				ca.SetInt(tt.Unix())
+				ca.SetInt(tt.Unix() * 1000)
 			}
 		case uint64:
 			if ca.Interface().(uint64) == 0 {
-				t := (uint64)(tt.Unix())
+				t := (uint64)(tt.Unix() * 1000)
 				ca.SetUint(t)
 			} else if overWrite {
-				t := (uint64)(tt.Unix())
+				t := (uint64)(tt.Unix() * 1000)
 				ca.SetUint(t)
 			}
 		default:
