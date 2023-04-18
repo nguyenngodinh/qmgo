@@ -173,11 +173,15 @@ func setBy(ctx context.Context, doc interface{}, fieldName string, ctxKey string
 	}
 	e := reflect.ValueOf(doc).Elem()
 	ca := e.FieldByName(fieldName)
+	fmt.Printf("Set time e:%v\n", e)
+	fmt.Printf("Set time ca:%v ---> can set %v\n", ca, ca.CanSet())
 	if ca.CanSet() {
+		fmt.Printf("ca type %v ", ca.Interface())
 		switch a := ca.Interface().(type) {
 		case string:
 			by := ctx.Value(ctxKey)
-			ca.SetString(by.((string)))
+			fmt.Printf("ctx value %v --> %v", ctxKey, by.(string))
+			ca.SetString(by.(string))
 		default:
 			fmt.Println("unsupported type to SetBy", a)
 		}
@@ -193,8 +197,8 @@ func setTime(ctx context.Context, doc interface{}, fieldName string, overWrite b
 	}
 	e := reflect.ValueOf(doc).Elem()
 	ca := e.FieldByName(fieldName)
-	fmt.Printf("Set time e:%v", e)
-	fmt.Printf("Set time ca:%v ---> can set %v", ca, ca.CanSet())
+	fmt.Printf("Set time e:%v\n", e)
+	fmt.Printf("Set time ca:%v ---> can set %v\n", ca, ca.CanSet())
 	if ca.CanSet() {
 		tt := time.Now()
 		atype := ca.Interface()
