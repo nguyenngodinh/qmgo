@@ -14,6 +14,7 @@
 package field
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"time"
@@ -24,9 +25,13 @@ import (
 
 // CustomFields defines struct of supported custom fields
 type CustomFields struct {
-	createAt string
-	updateAt string
-	id       string
+	createAt    string
+	createBy    string
+	createByKey string
+	updateAt    string
+	updateBy    string
+	updateByKey string
+	id          string
 }
 
 // CustomFieldsHook defines the interface, CustomFields return custom field user want to change
@@ -37,7 +42,9 @@ type CustomFieldsHook interface {
 // CustomFieldsBuilder defines the interface which user use to set custom fields
 type CustomFieldsBuilder interface {
 	SetUpdateAt(fieldName string) CustomFieldsBuilder
+	SetUpdateBy(fieldName string, key string) CustomFieldsBuilder
 	SetCreateAt(fieldName string) CustomFieldsBuilder
+	SetCreateBy(fieldName string, key string) CustomFieldsBuilder
 	SetId(fieldName string) CustomFieldsBuilder
 }
 
@@ -52,9 +59,23 @@ func (c *CustomFields) SetUpdateAt(fieldName string) CustomFieldsBuilder {
 	return c
 }
 
+// SetUpdateBy set the custom UpdateAt field
+func (c *CustomFields) SetUpdateBy(fieldName string, key string) CustomFieldsBuilder {
+	c.updateBy = fieldName
+	c.updateByKey = key
+	return c
+}
+
 // SetCreateAt set the custom CreateAt field
 func (c *CustomFields) SetCreateAt(fieldName string) CustomFieldsBuilder {
 	c.createAt = fieldName
+	return c
+}
+
+// SetCreateBy set the custom CreateAt field
+func (c *CustomFields) SetCreateBy(fieldName string, key string) CustomFieldsBuilder {
+	c.createBy = fieldName
+	c.createByKey = key
 	return c
 }
 
@@ -65,38 +86,60 @@ func (c *CustomFields) SetId(fieldName string) CustomFieldsBuilder {
 }
 
 // CustomCreateTime changes the custom create time
-func (c CustomFields) CustomCreateTime(doc interface{}) {
+func (c CustomFields) CustomCreateTime(ctx context.Context, doc interface{}) {
 	if c.createAt == "" {
 		return
 	}
 	fieldName := c.createAt
-	setTime(doc, fieldName, false)
+	setTime(ctx, doc, fieldName, false)
+	return
+}
+
+// CustomCreateBy changes the custom create by
+func (c CustomFields) CustomCreateBy(ctx context.Context, doc interface{}) {
+	if c.createBy == "" {
+		return
+	}
+	fieldName := c.createBy
+	ctxkey := c.createByKey
+	setBy(ctx, doc, fieldName, ctxkey)
 	return
 }
 
 // CustomUpdateTime changes the custom update time
-func (c CustomFields) CustomUpdateTime(doc interface{}) {
+func (c CustomFields) CustomUpdateTime(ctx context.Context, doc interface{}) {
 	if c.updateAt == "" {
 		return
 	}
 	fieldName := c.updateAt
-	setUpdatedTime(doc, fieldName)
+	setUpdatedTime(ctx, doc, fieldName)
+	return
+}
+
+// CustomUpdateBy changes the custom update by
+func (c CustomFields) CustomUpdateBy(ctx context.Context, doc interface{}) {
+	if c.createBy == "" {
+		return
+	}
+	fieldName := c.updateBy
+	ctxkey := c.updateByKey
+	setBy(ctx, doc, fieldName, ctxkey)
 	return
 }
 
 // CustomUpdateTime changes the custom update time
-func (c CustomFields) CustomId(doc interface{}) {
+func (c CustomFields) CustomId(ctx context.Context, doc interface{}) {
 	if c.id == "" {
 		return
 	}
 	fieldName := c.id
-	setId(doc, fieldName)
+	setId(ctx, doc, fieldName)
 	return
 }
 
 // setTime changes the custom time fields
 // The overWrite defines if change value when the filed has valid value
-func setUpdatedTime(doc interface{}, fieldName string) {
+func setUpdatedTime(ctx context.Context, doc interface{}, fieldName string) {
 	if reflect.Ptr != reflect.TypeOf(doc).Kind() {
 		fmt.Println("not a point type")
 		return
@@ -123,9 +166,27 @@ func setUpdatedTime(doc interface{}, fieldName string) {
 	}
 }
 
+func setBy(ctx context.Context, doc interface{}, fieldName string, ctxKey string) {
+	if reflect.Ptr != reflect.TypeOf(doc).Kind() {
+		fmt.Println("not a point type")
+		return
+	}
+	e := reflect.ValueOf(doc).Elem()
+	ca := e.FieldByName(fieldName)
+	if ca.CanSet() {
+		switch a := ca.Interface().(type) {
+		case string:
+			by := ctx.Value(ctxKey)
+			ca.SetString(by.((string)))
+		default:
+			fmt.Println("unsupported type to SetBy", a)
+		}
+	}
+}
+
 // setTime changes the custom time fields
 // The overWrite defines if change value when the filed has valid value
-func setTime(doc interface{}, fieldName string, overWrite bool) {
+func setTime(ctx context.Context, doc interface{}, fieldName string, overWrite bool) {
 	if reflect.Ptr != reflect.TypeOf(doc).Kind() {
 		fmt.Println("not a point type")
 		return
@@ -166,7 +227,7 @@ func setTime(doc interface{}, fieldName string, overWrite bool) {
 }
 
 // setId changes the custom Id fields
-func setId(doc interface{}, fieldName string) {
+func setId(ctx context.Context, doc interface{}, fieldName string) {
 	if reflect.Ptr != reflect.TypeOf(doc).Kind() {
 		fmt.Println("not a point type")
 		return

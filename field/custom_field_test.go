@@ -14,10 +14,12 @@
 package field
 
 import (
-	"github.com/stretchr/testify/require"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"context"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CustomUser struct {
@@ -42,9 +44,9 @@ func TestCustomFields(t *testing.T) {
 	ast := require.New(t)
 	u := &CustomUser{}
 	c := u.CustomFields()
-	c.(*CustomFields).CustomCreateTime(u)
-	c.(*CustomFields).CustomUpdateTime(u)
-	c.(*CustomFields).CustomId(u)
+	c.(*CustomFields).CustomCreateTime(context.TODO(), u)
+	c.(*CustomFields).CustomUpdateTime(context.TODO(), u)
+	c.(*CustomFields).CustomId(context.TODO(), u)
 	ast.NotEqual(0, u.Update)
 	ast.NotEqual(time.Time{}, u.Create)
 	ast.NotEqual(primitive.NilObjectID, u.MyId)
@@ -52,7 +54,7 @@ func TestCustomFields(t *testing.T) {
 	// id string
 	u1 := &CustomUser{}
 	c1 := u.CustomFieldsIdString()
-	c1.(*CustomFields).CustomId(u1)
+	c1.(*CustomFields).CustomId(context.TODO(), u1)
 	ast.NotEqual("", u1.MyIdString)
 
 }
@@ -71,34 +73,34 @@ func (c *CustomUser) CustomFieldsInvalid3() CustomFieldsBuilder {
 func TestCustomFieldsInvalid(t *testing.T) {
 	u := &CustomUser{}
 	c := u.CustomFieldsInvalid()
-	c.(*CustomFields).CustomCreateTime(u)
-	c.(*CustomFields).CustomUpdateTime(u)
+	c.(*CustomFields).CustomCreateTime(context.TODO(), u)
+	c.(*CustomFields).CustomUpdateTime(context.TODO(), u)
 	ast := require.New(t)
 	ast.Equal(0, u.InvalidCreate)
 	ast.Equal(float32(0), u.InvalidUpdate)
 
 	u1 := &CustomUser{}
 	c = u1.CustomFieldsInvalid2()
-	c.(*CustomFields).CustomCreateTime(u1)
-	c.(*CustomFields).CustomUpdateTime(u1)
+	c.(*CustomFields).CustomCreateTime(context.TODO(), u1)
+	c.(*CustomFields).CustomUpdateTime(context.TODO(), u1)
 	ast.Equal(0, u1.InvalidCreate)
 	ast.Equal(float32(0), u1.InvalidUpdate)
 
 	u2 := CustomUser{}
 	c = u2.CustomFieldsInvalid()
-	c.(*CustomFields).CustomCreateTime(u2)
-	c.(*CustomFields).CustomUpdateTime(u2)
+	c.(*CustomFields).CustomCreateTime(context.TODO(), u2)
+	c.(*CustomFields).CustomUpdateTime(context.TODO(), u2)
 	ast.Equal(0, u2.InvalidCreate)
 	ast.Equal(float32(0), u2.InvalidUpdate)
 
 	u3 := CustomUser{}
 	c = u3.CustomFieldsInvalid3()
-	c.(*CustomFields).CustomId(u3)
+	c.(*CustomFields).CustomId(context.TODO(), u3)
 	ast.Equal(0, u3.InvalidId)
 
 	u4 := &CustomUser{}
 	c = u4.CustomFieldsInvalid3()
-	c.(*CustomFields).CustomId(u4)
+	c.(*CustomFields).CustomId(context.TODO(), u4)
 	ast.Equal(0, u4.InvalidId)
 
 }

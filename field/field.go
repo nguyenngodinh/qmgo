@@ -24,7 +24,7 @@ import (
 var nilTime time.Time
 
 // filedHandler defines the relations between field type and handler
-var fieldHandler = map[operator.OpType]func(doc interface{}) error{
+var fieldHandler = map[operator.OpType]func(ctx context.Context, doc interface{}) error{
 	operator.BeforeInsert:  beforeInsert,
 	operator.BeforeUpdate:  beforeUpdate,
 	operator.BeforeReplace: beforeUpdate,
@@ -44,14 +44,14 @@ func Do(ctx context.Context, doc interface{}, opType operator.OpType, opts ...in
 	}
 	switch reflect.TypeOf(doc).Kind() {
 	case reflect.Slice:
-		return sliceHandle(doc, opType)
+		return sliceHandle(ctx, doc, opType)
 	case reflect.Ptr:
 		v := reflect.ValueOf(doc).Elem()
 		switch v.Kind() {
 		case reflect.Slice:
-			return sliceHandle(v.Interface(), opType)
+			return sliceHandle(ctx, v.Interface(), opType)
 		default:
-			return do(doc, opType)
+			return do(ctx, doc, opType)
 		}
 	}
 	//fmt.Println("not support type")
@@ -59,11 +59,11 @@ func Do(ctx context.Context, doc interface{}, opType operator.OpType, opts ...in
 }
 
 // sliceHandle handles the slice docs
-func sliceHandle(docs interface{}, opType operator.OpType) error {
+func sliceHandle(ctx context.Context, docs interface{}, opType operator.OpType) error {
 	// []interface{}{UserType{}...}
 	if h, ok := docs.([]interface{}); ok {
 		for _, v := range h {
-			if err := do(v, opType); err != nil {
+			if err := do(ctx, v, opType); err != nil {
 				return err
 			}
 		}
@@ -72,7 +72,7 @@ func sliceHandle(docs interface{}, opType operator.OpType) error {
 	// []UserType{}
 	s := reflect.ValueOf(docs)
 	for i := 0; i < s.Len(); i++ {
-		if err := do(s.Index(i).Interface(), opType); err != nil {
+		if err := do(ctx, s.Index(i).Interface(), opType); err != nil {
 			return err
 		}
 	}
@@ -83,7 +83,7 @@ func sliceHandle(docs interface{}, opType operator.OpType) error {
 // If value of field createAt is valid in doc, upsert doesn't change it
 // If value of field id is valid in doc, upsert doesn't change it
 // Change the value of field updateAt anyway
-func beforeInsert(doc interface{}) error {
+func beforeInsert(ctx context.Context, doc interface{}) error {
 	if ih, ok := doc.(DefaultFieldHook); ok {
 		ih.DefaultId()
 		ih.DefaultCreateAt()
@@ -91,21 +91,24 @@ func beforeInsert(doc interface{}) error {
 	}
 	if ih, ok := doc.(CustomFieldsHook); ok {
 		fields := ih.CustomFields()
-		fields.(*CustomFields).CustomId(doc)
-		fields.(*CustomFields).CustomCreateTime(doc)
-		fields.(*CustomFields).CustomUpdateTime(doc)
+		fields.(*CustomFields).CustomId(ctx, doc)
+		fields.(*CustomFields).CustomCreateTime(ctx, doc)
+		fields.(*CustomFields).CustomCreateBy(ctx, doc)
+		fields.(*CustomFields).CustomUpdateTime(ctx, doc)
+		fields.(*CustomFields).CustomUpdateBy(ctx, doc)
 	}
 	return nil
 }
 
 // beforeUpdate handles field before update
-func beforeUpdate(doc interface{}) error {
+func beforeUpdate(ctx context.Context, doc interface{}) error {
 	if ih, ok := doc.(DefaultFieldHook); ok {
 		ih.DefaultUpdateAt()
 	}
 	if ih, ok := doc.(CustomFieldsHook); ok {
 		fields := ih.CustomFields()
-		fields.(*CustomFields).CustomUpdateTime(doc)
+		fields.(*CustomFields).CustomUpdateTime(ctx, doc)
+		fields.(*CustomFields).CustomUpdateBy(ctx, doc)
 	}
 	return nil
 }
@@ -114,7 +117,7 @@ func beforeUpdate(doc interface{}) error {
 // If value of field createAt is valid in doc, upsert doesn't change it
 // If value of field id is valid in doc, upsert doesn't change it
 // Change the value of field updateAt anyway
-func beforeUpsert(doc interface{}) error {
+func beforeUpsert(ctx context.Context, doc interface{}) error {
 	if ih, ok := doc.(DefaultFieldHook); ok {
 		ih.DefaultId()
 		ih.DefaultCreateAt()
@@ -122,18 +125,20 @@ func beforeUpsert(doc interface{}) error {
 	}
 	if ih, ok := doc.(CustomFieldsHook); ok {
 		fields := ih.CustomFields()
-		fields.(*CustomFields).CustomId(doc)
-		fields.(*CustomFields).CustomCreateTime(doc)
-		fields.(*CustomFields).CustomUpdateTime(doc)
+		fields.(*CustomFields).CustomId(ctx, doc)
+		fields.(*CustomFields).CustomCreateTime(ctx, doc)
+		fields.(*CustomFields).CustomCreateBy(ctx, doc)
+		fields.(*CustomFields).CustomUpdateTime(ctx, doc)
+		fields.(*CustomFields).CustomUpdateBy(ctx, doc)
 	}
 	return nil
 }
 
 // do check if opType is supported and call fieldHandler
-func do(doc interface{}, opType operator.OpType) error {
+func do(ctx context.Context, doc interface{}, opType operator.OpType) error {
 	if f, ok := fieldHandler[opType]; !ok {
 		return nil
 	} else {
-		return f(doc)
+		return f(ctx, doc)
 	}
 }

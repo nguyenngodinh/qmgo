@@ -31,7 +31,9 @@ type DefaultFieldHook interface {
 type DefaultField struct {
 	Id       primitive.ObjectID `bson:"_id"`
 	CreateAt time.Time          `bson:"createAt"`
+	CreateBy string             `bson:"createBy"`
 	UpdateAt time.Time          `bson:"updateAt"`
+	UpdateBy string             `bson:"updateBy"`
 }
 
 // DefaultUpdateAt changes the default updateAt field
@@ -39,10 +41,24 @@ func (df *DefaultField) DefaultUpdateAt() {
 	df.UpdateAt = time.Now().Local()
 }
 
+// DefaultUpdateBy changes the default updateBy field
+func (df *DefaultField) DefaultUpdateBy() {
+	if df.UpdateBy == "" {
+		df.UpdateBy = "Unknown"
+	}
+}
+
 // DefaultCreateAt changes the default createAt field
 func (df *DefaultField) DefaultCreateAt() {
 	if df.CreateAt.IsZero() {
 		df.CreateAt = time.Now().Local()
+	}
+}
+
+// DefaultCreateBy changes the default createBy field
+func (df *DefaultField) DefaultCreateBy() {
+	if df.CreateBy == "" {
+		df.CreateBy = "Unknown"
 	}
 }
 
