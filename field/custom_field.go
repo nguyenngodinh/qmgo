@@ -179,9 +179,13 @@ func setBy(ctx context.Context, doc interface{}, fieldName string, ctxKey string
 		fmt.Printf("ca type %v ", ca.Interface())
 		switch a := ca.Interface().(type) {
 		case string:
-			by := ctx.Value(ctxKey)
-			fmt.Printf("ctx value %v --> %v", ctxKey, by.(string))
-			ca.SetString(by.(string))
+                        by := ctx.Value(ctxKey)
+                        fmt.Printf("ctx value %v --> %v", ctxKey, by.(string))
+                        if len(by.(string)) > 0 {
+                                ca.SetString(by.(string))
+                        }else {
+                                fmt.Printf("value with key %v is empty --> do not set", ctxKey, by)
+                        }
 		default:
 			fmt.Println("unsupported type to SetBy", a)
 		}
